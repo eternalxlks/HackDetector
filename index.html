@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Device Security Monitor</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      line-height: 1.6;
+    }
+    .status {
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+    }
+    .ok {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    .warning {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+  </style>
+</head>
+<body>
+  <h1>Device Security Monitor</h1>
+  <div id="securityStatus" class="status ok">
+    No suspicious activity detected.
+  </div>
+  <h2>Log:</h2>
+  <ul id="log"></ul>
+
+  <script>
+    const statusElement = document.getElementById('securityStatus');
+    const logElement = document.getElementById('log');
+
+    // Log function
+    function logMessage(message, type = 'info') {
+      const listItem = document.createElement('li');
+      listItem.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      logElement.appendChild(listItem);
+      if (type === 'warning') {
+        statusElement.className = 'status warning';
+        statusElement.textContent = 'Suspicious activity detected!';
+      } else if (type === 'error') {
+        statusElement.className = 'status error';
+        statusElement.textContent = 'Potential hacking attempt!';
+      }
+    }
+
+    // Monitor clipboard access
+    document.addEventListener('copy', () => {
+      logMessage('Clipboard content copied.', 'warning');
+    });
+
+    document.addEventListener('paste', () => {
+      logMessage('Clipboard content pasted.', 'warning');
+    });
+
+    // Monitor keyboard activity
+    document.addEventListener('keydown', (event) => {
+      logMessage(`Key pressed: ${event.key}`);
+    });
+
+    // Monitor unexpected network requests
+    const originalFetch = window.fetch;
+    window.fetch = async function (...args) {
+      logMessage(`Network request detected: ${args[0]}`, 'warning');
+      return originalFetch.apply(this, args);
+    };
+
+    // Monitor unauthorized script injections
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeName === 'SCRIPT') {
+            logMessage('New script element detected in DOM!', 'error');
+          }
+        });
+      });
+    });
+
+    observer.observe(document.documentElement, {
+      childList: true,
+      subtree: true
+    });
+
+    // Simulate periodic health check
+    setInterval(() => {
+      if (statusElement.className === 'status ok') {
+        logMessage('System health check passed.', 'info');
+      }
+    }, 5000);
+  </script>
+</body>
+</html>
