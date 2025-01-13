@@ -1,5 +1,5 @@
 # HackDetector
-This is just for education purposes. Not a real threat security.
+This is just for education purposes. Not a real threat security. It does NOT protect you.
 ## Features:
 ### Clipboard Monitoring: Alerts when copy-paste operations are detected.
 ### keystroke Monitoring: Logs pressed keys.
